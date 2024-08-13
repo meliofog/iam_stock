@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Record List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        function confirmDelete(event) {
+            if (!confirm("Are you sure you want to delete this record?")) {
+                event.preventDefault();
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mt-5">Record List</h1>
+
+    <!-- Record Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Total Equipments</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ record.name }}</td>
+                <td>{{ equipment_count.record.name|default:"0" }}</td>
+                <td>
+                    <!-- Download Button -->
+                    <a href="{% url 'download_record' record.pk %}" class="btn btn-primary btn-sm">Download</a>
+
+                    <!-- Delete Button -->
+                    <form method="post" action="{% url 'delete_record' record.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="confirmDelete(event)">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

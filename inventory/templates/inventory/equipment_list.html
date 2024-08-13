@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Equipment List</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mt-5">Equipment List</h1>
+
+    <div class="row mb-3">
+        <!-- Import Excel File Button and Filter Form in Same Row -->
+        <div class="col-md-8">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.file }}
+                <button type="submit" class="btn btn-primary">Import Excel File</button>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <!-- Filter Form -->
+            <form method="get" class="form-inline">
+                <div class="form-group mr-2">
+                    <label for="record" class="sr-only">Filter by Record:</label>
+                    <select name="record" id="record" class="form-control">
+                        <option value="">All Records</option>
+                        {% for record in records %}
+                        <option value="{{ record.id }}" {% if record.id|stringformat:"i" == filter_record_id %}selected{% endif %}>{{ record.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Equipment Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Record</th>
+                <th>Ref</th>
+                <th>SN</th>
+                <th>SN Rempl</th>
+                <th>Reception Date</th>
+                <th>Delivery Status</th>
+                <th>Delivery Date</th>
+                <th>BL</th>
+                <th>Year</th>
+                <th>Quarter</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipment in equipments %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ equipment.name }}</td>
+                <td>{{ equipment.record.name }}</td>
+                <td>{{ equipment.ref }}</td>
+                <td>{{ equipment.sn }}</td>
+                <td>{{ equipment.sn_rempl }}</td>
+                <td>{{ equipment.reception_date }}</td>
+                <td>{{ equipment.delivery_status }}</td>
+                <td>{{ equipment.delivery_date }}</td>
+                <td>{{ equipment.bl }}</td>
+                <td>{{ equipment.year }}</td>
+                <td>{{ equipment.quarter }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if equipments.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ equipments.previous_page_number }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in equipments.paginator.page_range %}
+                {% if equipments.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">{{ num }}<span class="sr-only">(current)</span></span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if equipments.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ equipments.next_page_number }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ equipments.paginator.num_pages }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Page Info -->
+    <div class="mt-3">
+        <p>Page {{ equipments.number }} of {{ equipments.paginator.num_pages }}</p>
+        <p>Total Records: {{ equipments.paginator.count }}</p>
+    </div>
+</div>
+
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
