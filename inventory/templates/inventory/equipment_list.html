@@ -1,28 +1,14 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Equipment List</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends 'inventory/base.html' %}
 
+{% block title %}Equipment List{% endblock %}
+
+{% block content %}
 <div class="container">
     <h1 class="mt-5">Equipment List</h1>
 
     <div class="row mb-3">
-        <!-- Import Excel File Button and Filter Form in Same Row -->
-        <div class="col-md-8">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.file }}
-                <button type="submit" class="btn btn-primary">Import Excel File</button>
-            </form>
-        </div>
-        <div class="col-md-4">
-            <!-- Filter Form -->
+        <!-- Filter Form -->
+        <div class="col-md-12">
             <form method="get" class="form-inline">
                 <div class="form-group mr-2">
                     <label for="record" class="sr-only">Filter by Record:</label>
@@ -32,6 +18,10 @@
                         <option value="{{ record.id }}" {% if record.id|stringformat:"i" == filter_record_id %}selected{% endif %}>{{ record.name }}</option>
                         {% endfor %}
                     </select>
+                </div>
+                <div class="form-group mr-2">
+                    <label for="sn" class="sr-only">Filter by SN:</label>
+                    <input type="text" name="sn" id="sn" class="form-control" placeholder="Enter SN" value="{{ filter_sn }}">
                 </div>
                 <button type="submit" class="btn btn-secondary">Filter</button>
             </form>
@@ -54,6 +44,7 @@
                 <th>BL</th>
                 <th>Year</th>
                 <th>Quarter</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -71,6 +62,10 @@
                 <td>{{ equipment.bl }}</td>
                 <td>{{ equipment.year }}</td>
                 <td>{{ equipment.quarter }}</td>
+                <td>
+                    <!-- Edit Button -->
+                    <a href="{% url 'edit_equipment' equipment.id %}" class="btn btn-warning btn-sm">Edit</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -81,12 +76,12 @@
         <ul class="pagination">
             {% if equipments.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="First">
+                    <a class="page-link" href="?page=1{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}{% if filter_sn %}&sn={{ filter_sn }}{% endif %}" aria-label="First">
                         <span aria-hidden="true">&laquo;&laquo;</span>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ equipments.previous_page_number }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="Previous">
+                    <a class="page-link" href="?page={{ equipments.previous_page_number }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}{% if filter_sn %}&sn={{ filter_sn }}{% endif %}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
@@ -99,19 +94,19 @@
                     </li>
                 {% else %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}">{{ num }}</a>
+                        <a class="page-link" href="?page={{ num }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}{% if filter_sn %}&sn={{ filter_sn }}{% endif %}">{{ num }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
 
             {% if equipments.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ equipments.next_page_number }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="Next">
+                    <a class="page-link" href="?page={{ equipments.next_page_number }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}{% if filter_sn %}&sn={{ filter_sn }}{% endif %}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ equipments.paginator.num_pages }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}" aria-label="Last">
+                    <a class="page-link" href="?page={{ equipments.paginator.num_pages }}{% if filter_record_id %}&record={{ filter_record_id }}{% endif %}{% if filter_sn %}&sn={{ filter_sn }}{% endif %}" aria-label="Last">
                         <span aria-hidden="true">&raquo;&raquo;</span>
                     </a>
                 </li>
@@ -125,10 +120,4 @@
         <p>Total Records: {{ equipments.paginator.count }}</p>
     </div>
 </div>
-
-<!-- Bootstrap JS, Popper.js, and jQuery -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+{% endblock %}
