@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Record, Equipment
-from .forms import EquipmentForm, UploadFileForm
+from .forms import EquipmentForm, UploadFileForm, RecordForm
 import pandas as pd
 from django.core.paginator import Paginator
 from django.http import HttpResponse
@@ -226,3 +226,13 @@ def update_equipment(request, id):
         'records': records
     })
 
+def edit_record(request, pk):
+    record = get_object_or_404(Record, pk=pk)
+    if request.method == 'POST':
+        form = RecordForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('record_list')
+    else:
+        form = RecordForm(instance=record)
+    return render(request, 'inventory/edit_record.html', {'form': form, 'record': record})

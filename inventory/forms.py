@@ -13,3 +13,11 @@ class EquipmentForm(forms.ModelForm):
             'delivery_date': forms.DateInput(attrs={'type': 'date'}),
             'sn': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
+
+class RecordForm(forms.ModelForm):
+    class Meta:
+        model = Record
+        fields = ['name', 'reception_date']
+        widgets = {
+            'reception_date': forms.DateInput(attrs={'type': 'date'}),
+        }

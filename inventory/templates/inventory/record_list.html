@@ -14,7 +14,7 @@
                 <th>Name</th>
                 <th>Reception Date</th>
                 <th>Quarter</th>
-                <th>Total Equipments</th>
+                <th>Items Count</th>
                 <th>Repair Duration (Days)</th>
                 <th>Status</th>
                 <th>Message</th>
@@ -39,15 +39,19 @@
                     {% endif %}
                 </td>
                 <td>
+                    <!-- Edit Button -->
+                    <a href="{% url 'edit_record' record.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                
                     <!-- Download Button -->
                     <a href="{% url 'download_record' record.pk %}" class="btn btn-primary btn-sm">Download</a>
-
+                
                     <!-- Delete Button -->
                     <form method="post" action="{% url 'delete_record' record.pk %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger btn-sm" onclick="confirmDelete(event)">Delete</button>
                     </form>
                 </td>
+                
             </tr>
             {% endfor %}
         </tbody>
