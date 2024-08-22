@@ -4,6 +4,17 @@
 <div class="container">
     <h1 class="mt-5">Dashboard</h1>
 
+    <!-- Display errors here -->
+    {% if errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
     <div class="row mb-3">
         <div class="col-md-8">
             <form method="post" enctype="multipart/form-data">

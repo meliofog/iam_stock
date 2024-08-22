@@ -7,8 +7,8 @@
     <h1 class="mt-5">Record List</h1>
 
     <!-- Record Table -->
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-hover table-bordered">
+        <thead class="thead-light">
             <tr>
                 <th>#</th>
                 <th>Name</th>
@@ -33,25 +33,38 @@
                 <td>{{ record.status }}</td>
                 <td>
                     {% if record.message %}
-                        <div class="alert {% if record.repair_duration >= 75 and record.repair_duration <= 85 %}alert-warning{% elif record.repair_duration > 90 %}alert-danger{% else %}alert-info{% endif %}">
+                        <div class="alert {% if record.repair_duration >= 75 and record.repair_duration <= 85 %}alert-warning{% elif record.repair_duration > 90 %}alert-danger{% else %}alert-info{% endif %}" style="margin-bottom: 0;">
                             {{ record.message }}
                         </div>
                     {% endif %}
                 </td>
                 <td>
-                    <!-- Edit Button -->
-                    <a href="{% url 'edit_record' record.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                
-                    <!-- Download Button -->
-                    <a href="{% url 'download_record' record.pk %}" class="btn btn-primary btn-sm">Download</a>
-                
-                    <!-- Delete Button -->
-                    <form method="post" action="{% url 'delete_record' record.pk %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="confirmDelete(event)">Delete</button>
-                    </form>
-                </td>
-                
+                    <!-- Actions Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ forloop.counter }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-cogs"></i> Actions
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ forloop.counter }}">
+                            <!-- Edit Button -->
+                            <a href="{% url 'edit_record' record.pk %}" class="dropdown-item">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <!-- Download Button -->
+                            <a href="{% url 'download_record' record.pk %}" class="dropdown-item">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                            <!-- Delete Button -->
+                            <div class="dropdown-item">
+                                <form method="post" action="{% url 'delete_record' record.pk %}" class="d-inline" onsubmit="return confirmDelete();">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link text-danger p-0" style="border: none; background: none; display: flex; align-items: center;">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>                
             </tr>
             {% endfor %}
         </tbody>
@@ -59,10 +72,8 @@
 </div>
 
 <script>
-    function confirmDelete(event) {
-        if (!confirm("Are you sure you want to delete this record?")) {
-            event.preventDefault();
-        }
+    function confirmDelete() {
+        return confirm("Are you sure you want to delete this record?");
     }
 </script>
 {% endblock %}

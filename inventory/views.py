@@ -9,50 +9,70 @@ from django.db.models import Count
 from io import BytesIO
 from django.utils.dateparse import parse_date
 import xlsxwriter
-# Create your views here.
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 
 def home(request):
     form = UploadFileForm()
+    errors = []
+
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            excel_file = request.FILES['file']
-            df = pd.read_excel(excel_file)
+            try:
+                excel_file = request.FILES['file']
 
-            for index, row in df.iterrows():
-                record_name = row['Dossier']
-                equipment_name = row['Design.']
-                ref = row['Ref']
-                sn = row['SN']
-                sn_rempl = row['SN Rempl']
-                #reception_date = row['Date de récept']
-                #delivery_status = row['Livraison']
-                #delivery_date = row['Date Livraison']
-                #bl = row['BL']
-                #year = row['YEAR']
-                #quarter = row['QUARTER']
-
-                # Check if the record already exists
-                record, created = Record.objects.get_or_create(name=record_name)
-
-                # Check if the equipment with the same SN already exists
-                existing_equipment = Equipment.objects.filter(sn=sn).first()
-
-                if not existing_equipment:
-                    # Create the equipment associated with the record
-                    Equipment.objects.create(
-                        name=equipment_name, 
-                        record=record, 
-                        ref=ref, 
-                        sn=sn, 
-                        sn_rempl=sn_rempl,
-                        order_index=index + 1  # Assign order_index based on the row number
-                    )
+                # Ensure the file is a valid Excel file
+                if not isinstance(excel_file, InMemoryUploadedFile) or not excel_file.name.endswith('.xlsx'):
+                    errors.append('Please upload a valid Excel file.')
                 else:
-                    # Log or handle the case where the equipment already exists
-                    print(f"Equipment with SN {sn} already exists and was not added.")
+                    df = pd.read_excel(excel_file)
 
-            return redirect('home')
+                    for index, row in df.iterrows():
+                        record_name = row.get('Dossier')
+                        equipment_name = row.get('Design.')
+                        ref = row.get('Ref')
+                        sn = row.get('SN')
+                        sn_rempl = row.get('SN Rempl')
+
+                        if not record_name or not equipment_name or not sn:
+                            errors.append(f'Missing required data in row {index + 1}.')
+                            continue
+
+                        # Check if the record already exists
+                        record, created = Record.objects.get_or_create(name=record_name)
+
+                        # Check if the equipment with the same SN already exists
+                        existing_equipment = Equipment.objects.filter(sn=sn).first()
+
+                        if not existing_equipment:
+                            # Create the equipment associated with the record
+                            Equipment.objects.create(
+                                name=equipment_name, 
+                                record=record, 
+                                ref=ref, 
+                                sn=sn, 
+                                sn_rempl=sn_rempl,
+                                order_index=index + 1  # Assign order_index based on the row number
+                            )
+                        else:
+                            errors.append(f'Equipment with SN {sn} already exists and was not added.')
+
+                    if errors:
+                        # If there are errors, re-render the form with errors
+                        return render(request, 'inventory/home.html', {
+                            'form': form,
+                            'total_records': Record.objects.count(),
+                            'total_equipments': Equipment.objects.count(),
+                            'errors': errors,
+                        })
+                    else:
+                        return redirect('home')
+            except Exception as e:
+                errors.append(f'An error occurred: {str(e)}')
+        else:
+            errors.append('Form is not valid.')
 
     total_records = Record.objects.count()
     total_equipments = Equipment.objects.count()
@@ -61,8 +81,8 @@ def home(request):
         'form': form,
         'total_records': total_records,
         'total_equipments': total_equipments,
+        'errors': errors,
     })
-
 
 def record_list(request):
     records = Record.objects.all()
