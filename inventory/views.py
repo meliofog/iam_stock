@@ -193,6 +193,14 @@ def delete_record(request, record_id):
 
     return render(request, 'records/confirm_delete.html', {'record': record})
 
+def delete_equipment(request, pk):
+    equipment = get_object_or_404(Equipment, pk=pk)
+    
+    if request.method == 'POST':
+        equipment.delete()
+        return redirect('equipment_list')
+    return render(request, 'inventory/delete_equipment_confirm.html', {'equipment': equipment})
+
 def edit_equipment(request, pk):
     equipment = get_object_or_404(Equipment, pk=pk)
     

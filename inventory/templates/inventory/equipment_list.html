@@ -63,10 +63,46 @@
                 <td>{{ equipment.year }}</td>
                 <td>{{ equipment.quarter }}</td>
                 <td>
-                    <!-- Edit Button with Font Awesome Icon -->
-                    <a href="{% url 'edit_equipment' equipment.id %}" class="btn btn-warning btn-sm" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
+                    <!-- Actions Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="actionsDropdown{{ equipment.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Actions
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="actionsDropdown{{ equipment.id }}">
+                            <!-- Edit Action -->
+                            <a href="{% url 'edit_equipment' equipment.id %}" class="dropdown-item">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <!-- Delete Action -->
+                            <button class="dropdown-item text-danger" data-toggle="modal" data-target="#deleteModal{{ equipment.id }}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteModal{{ equipment.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ equipment.id }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ equipment.id }}">Confirm Delete</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete the equipment: <strong>{{ equipment.name }}</strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <form method="post" action="{% url 'delete_equipment' equipment.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
