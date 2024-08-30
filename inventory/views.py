@@ -251,8 +251,10 @@ def edit_record(request, pk):
     if request.method == 'POST':
         form = RecordForm(request.POST, instance=record)
         if form.is_valid():
-            form.save()
+            record = form.save()
+            # Update all associated equipment with the new reception date
+            Equipment.objects.filter(record=record).update(reception_date=record.reception_date)
             return redirect('record_list')
     else:
         form = RecordForm(instance=record)
-    return render(request, 'inventory/edit_record.html', {'form': form, 'record': record})
+    return render(request, 'inventory/edit_record.html', {'form': form})
